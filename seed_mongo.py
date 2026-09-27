@@ -7,9 +7,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 mongo_uri = os.environ.get('MONGO_URI') or os.environ.get('MONGODB_URI')
 if not mongo_uri:
-    print("❌ Error: MONGO_URI environment variable is not set!")
+    print("[ERROR] MONGO_URI environment variable is not set!")
     print("Please set MONGO_URI in your environment or .env file before running seed_mongo.py.")
     sys.exit(1)
 
@@ -17,10 +18,11 @@ try:
     from pymongo import MongoClient
     client = MongoClient(mongo_uri)
     db = client.get_default_database(default='career_guidance')
-    print("✅ Successfully connected to MongoDB Atlas!")
+    print("[OK] Successfully connected to MongoDB Atlas!")
 except Exception as e:
-    print(f"❌ Failed to connect to MongoDB Atlas: {e}")
+    print(f"[ERROR] Failed to connect to MongoDB Atlas: {e}")
     sys.exit(1)
+
 
 def seed_mongo():
     print("Clearing existing collections in MongoDB...")
@@ -189,7 +191,8 @@ def seed_mongo():
     ]
     db.careers.insert_many(careers_data)
 
-    print("🎉 MongoDB Atlas Database successfully seeded with careers, admin user, skills, and interests!")
+    print("[SUCCESS] MongoDB Atlas Database successfully seeded with careers, admin user, skills, and interests!")
 
 if __name__ == '__main__':
     seed_mongo()
+
