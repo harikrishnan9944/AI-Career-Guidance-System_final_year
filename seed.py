@@ -1,72 +1,65 @@
 import json
-from app import create_app
 from models import db
 from models.user import User
 from models.profile import Profile, Skill, Interest
 from models.career import Career
 
-app = create_app()
-
 def seed_database():
-    with app.app_context():
-        print("Re-creating database tables...")
-        db.drop_all()
-        db.create_all()
+    print("Seeding Skills...")
+    tech_skills = [
+        'Python', 'Java', 'JavaScript', 'React', 'HTML', 'CSS', 'SQL', 'C', 'C++', 
+        'Data Analysis', 'Machine Learning', 'Cloud Computing', 'Networking', 
+        'Node.js', 'MongoDB', 'REST APIs', 'Git', 'Docker', 'Kubernetes', 
+        'Cyber Security', 'Figma', 'Statistics', 'Digital Marketing', 'SEO', 
+        'Financial Modeling', 'Technical Writing', 'Deep Learning', 'Tableau', 'Power BI'
+    ]
 
-        print("Seeding Skills...")
-        tech_skills = [
-            'Python', 'Java', 'JavaScript', 'React', 'HTML', 'CSS', 'SQL', 'C', 'C++', 
-            'Data Analysis', 'Machine Learning', 'Cloud Computing', 'Networking', 
-            'Node.js', 'MongoDB', 'REST APIs', 'Git', 'Docker', 'Kubernetes', 
-            'Cyber Security', 'Figma', 'Statistics', 'Digital Marketing', 'SEO', 
-            'Financial Modeling', 'Technical Writing', 'Deep Learning', 'Tableau', 'Power BI'
-        ]
+    soft_skills = [
+        'Communication', 'Leadership', 'Problem Solving', 'Teamwork', 'Creativity', 
+        'Time Management', 'Critical Thinking', 'Adaptability', 'Negotiation', 'Public Speaking'
+    ]
+
+    for s_name in tech_skills:
+        db.session.add(Skill(name=s_name, category='technical'))
         
-        soft_skills = [
-            'Communication', 'Leadership', 'Problem Solving', 'Teamwork', 'Creativity', 
-            'Time Management', 'Critical Thinking', 'Adaptability', 'Negotiation', 'Public Speaking'
-        ]
+    for s_name in soft_skills:
+        db.session.add(Skill(name=s_name, category='soft'))
 
-        for s_name in tech_skills:
-            db.session.add(Skill(name=s_name, category='technical'))
-            
-        for s_name in soft_skills:
-            db.session.add(Skill(name=s_name, category='soft'))
+    print("Seeding Interests...")
+    interests = [
+        'Software Development', 'Data Science', 'AI / ML', 'Cybersecurity', 
+        'UI/UX', 'Cloud Computing', 'Networking', 'Business', 'Finance', 
+        'Marketing', 'Teaching', 'Research'
+    ]
+    for i_name in interests:
+        db.session.add(Interest(name=i_name))
 
-        print("Seeding Interests...")
-        interests = [
-            'Software Development', 'Data Science', 'AI / ML', 'Cybersecurity', 
-            'UI/UX', 'Cloud Computing', 'Networking', 'Business', 'Finance', 
-            'Marketing', 'Teaching', 'Research'
-        ]
-        for i_name in interests:
-            db.session.add(Interest(name=i_name))
+    db.session.commit()
 
-        db.session.commit()
+    print("Seeding Default Admin User...")
+    admin = User(
+        name='System Administrator',
+        email='admin@careerpath.ai',
+        role='ADMIN'
+    )
+    admin.set_password('admin123')
+    db.session.add(admin)
+    db.session.flush()
 
-        print("Seeding Default Admin User...")
-        admin = User(
-            name='System Administrator',
-            email='admin@careerpath.ai',
-            role='ADMIN'
-        )
-        admin.set_password('admin123')
-        db.session.add(admin)
-        db.session.flush()
+    admin_profile = Profile(
+        user_id=admin.id,
+        qualification="Master of Science",
+        degree="M.Sc Computer Science",
+        field_of_study="Computer Science",
+        profile_completion=100
+    )
+    db.session.add(admin_profile)
+    db.session.commit()
 
-        admin_profile = Profile(
-            user_id=admin.id,
-            qualification="Master of Science",
-            degree="M.Sc Computer Science",
-            field_of_study="Computer Science",
-            profile_completion=100
-        )
-        db.session.add(admin_profile)
-        db.session.commit()
+    print("Seeding 20 Careers with real metadata and free learning resources...")
 
-        print("Seeding 20 Careers with real metadata and free learning resources...")
+    careers_data = [
 
-        careers_data = [
             {
                 "name": "Full Stack Developer",
                 "category": "Software",
@@ -470,24 +463,25 @@ def seed_database():
             }
         ]
 
-        for item in careers_data:
-            c = Career(
-                name=item["name"],
-                category=item["category"],
-                description=item["description"],
-                is_active=True
-            )
-            c.required_education = item["required_education"]
-            c.required_skills = item["required_skills"]
-            c.soft_skills = item["soft_skills"]
-            c.interests = item["interests"]
-            c.work_environment = item["work_environment"]
-            c.career_growth = item["career_growth"]
-            c.learning_resources = item["learning_resources"]
-            db.session.add(c)
+    for item in careers_data:
+        c = Career(
+            name=item["name"],
+            category=item["category"],
+            description=item["description"],
+            is_active=True
+        )
+        c.required_education = item["required_education"]
+        c.required_skills = item["required_skills"]
+        c.soft_skills = item["soft_skills"]
+        c.interests = item["interests"]
+        c.work_environment = item["work_environment"]
+        c.career_growth = item["career_growth"]
+        c.learning_resources = item["learning_resources"]
+        db.session.add(c)
 
-        db.session.commit()
-        print("Database seeded successfully!")
+    db.session.commit()
+    print("Database seeded successfully!")
+
 
 def auto_seed_if_empty():
     from models.career import Career
@@ -495,5 +489,9 @@ def auto_seed_if_empty():
         seed_database()
 
 if __name__ == '__main__':
-    seed_database()
+    from app import create_app
+    app = create_app()
+    with app.app_context():
+        seed_database()
+
 
