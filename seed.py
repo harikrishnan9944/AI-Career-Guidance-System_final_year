@@ -489,5 +489,11 @@ def seed_database():
         db.session.commit()
         print("Database seeded successfully!")
 
+def auto_seed_if_empty():
+    from models.career import Career
+    if Career.query.count() == 0:
+        seed_database()
+
 if __name__ == '__main__':
     seed_database()
+

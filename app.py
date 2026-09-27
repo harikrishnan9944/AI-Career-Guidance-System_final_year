@@ -56,15 +56,18 @@ def create_app():
 
     # Auto create tables if not existing
     with app.app_context():
-        db.create_all()
         try:
+            db.create_all()
+            from seed import auto_seed_if_empty
+            auto_seed_if_empty()
             from database.mongo_sync import init_mongo_sync, sync_all_existing_data
             init_mongo_sync(db)
             sync_all_existing_data(app, db)
         except Exception as e:
-            app.logger.warning(f"MongoDB auto sync initialization warning: {e}")
+            app.logger.warning(f"App initialization warning: {e}")
 
     return app
+
 
 
 app = create_app()

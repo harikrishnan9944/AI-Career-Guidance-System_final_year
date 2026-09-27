@@ -12,10 +12,11 @@ class MongoDB:
             return None
         
         if cls._db is None:
-            cls._client = MongoClient(mongo_uri)
+            cls._client = MongoClient(mongo_uri, serverSelectionTimeoutMS=3000, connectTimeoutMS=3000)
             # Default database name is 'career_guidance' if not specified in URI path
             cls._db = cls._client.get_default_database(default='career_guidance')
         return cls._db
+
 
 def get_mongo_db():
     return MongoDB.get_db()
