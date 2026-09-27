@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}{% if career %}Edit Career — {{ career.name }}{% else %}Add New Career{% endif %} - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card card-custom p-4 border-0 shadow-sm bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                    <h3 class="fw-bold text-dark mb-0">
+                        {% if career %}Edit Career: <span class="text-primary">{{ career.name }}</span>{% else %}Add New Career Profile{% endif %}
+                    </h3>
+                    <a href="{{ url_for('admin.careers') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Careers
+                    </a>
+                </div>
+
+                <form action="{% if career %}{{ url_for('admin.edit_career', career_id=career.id) }}{% else %}{{ url_for('admin.add_career') }}{% endif %}" method="POST">
+                    
+                    <!-- Basic Info -->
+                    <h5 class="fw-bold text-primary mb-3">1. General Information</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-8">
+                            <label for="name" class="form-label fw-semibold">Career Title *</label>
+                            <input type="text" class="form-control bg-light" id="name" name="name" value="{{ career.name if career else '' }}" required placeholder="e.g. Full Stack Developer">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="category" class="form-label fw-semibold">Category *</label>
+                            <select class="form-select bg-light" id="category" name="category" required>
+                                <option value="" disabled {% if not career %}selected{% endif %}>Select Category...</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat }}" {% if career and career.category == cat %}selected{% endif %}>{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="description" class="form-label fw-semibold">Role Description *</label>
+                            <textarea class="form-control bg-light" id="description" name="description" rows="3" required placeholder="Detailed role responsibilities and duties...">{{ career.description if career else '' }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Skills & Qualifications -->
+                    <h5 class="fw-bold text-primary mb-3">2. Skills & Requirements (Comma-Separated)</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="required_skills" class="form-label fw-semibold">Required Technical Skills</label>
+                            <input type="text" class="form-control bg-light" id="required_skills" name="required_skills" value="{{ career.required_skills|join(', ') if career else '' }}" placeholder="JavaScript, React, Node.js, SQL">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="soft_skills" class="form-label fw-semibold">Soft Skills</label>
+                            <input type="text" class="form-control bg-light" id="soft_skills" name="soft_skills" value="{{ career.soft_skills|join(', ') if career else '' }}" placeholder="Problem Solving, Communication, Teamwork">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="required_education" class="form-label fw-semibold">Required Education</label>
+                            <input type="text" class="form-control bg-light" id="required_education" name="required_education" value="{{ career.required_education|join(', ') if career else '' }}" placeholder="B.Sc Computer Science, B.Tech IT">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="interests" class="form-label fw-semibold">Matching Career Interests</label>
+                            <input type="text" class="form-control bg-light" id="interests" name="interests" value="{{ career.interests|join(', ') if career else '' }}" placeholder="Software Development, UI/UX">
+                        </div>
+
+                        <div class="col-12">
+                            <label for="work_environment" class="form-label fw-semibold">Available Work Environments</label>
+                            <input type="text" class="form-control bg-light" id="work_environment" name="work_environment" value="{{ career.work_environment|join(', ') if career else '' }}" placeholder="Remote, Hybrid, Office, Startup, MNC">
+                        </div>
+                    </div>
+
+                    <!-- Career Progression -->
+                    <h5 class="fw-bold text-primary mb-3">3. Career Growth Titles</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Entry Level Title</label>
+                            <input type="text" class="form-control bg-light" name="growth_entry" value="{{ career.career_growth[0].title if career and career.career_growth|length > 0 else 'Junior Specialist' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Mid Level Title</label>
+                            <input type="text" class="form-control bg-light" name="growth_mid" value="{{ career.career_growth[1].title if career and career.career_growth|length > 1 else 'Specialist Engineer' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Senior Level Title</label>
+                            <input type="text" class="form-control bg-light" name="growth_senior" value="{{ career.career_growth[2].title if career and career.career_growth|length > 2 else 'Senior Specialist' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Lead / Manager Title</label>
+                            <input type="text" class="form-control bg-light" name="growth_lead" value="{{ career.career_growth[3].title if career and career.career_growth|length > 3 else 'Lead Architect' }}">
+                        </div>
+                    </div>
+
+                    <!-- Free Learning Resources -->
+                    <h5 class="fw-bold text-primary mb-3">4. Free Learning Resources</h5>
+                    <div class="mb-4">
+                        {% if career and career.learning_resources %}
+                            {% for res in career.learning_resources %}
+                                <div class="row g-2 mb-2">
+                                    <div class="col-md-5">
+                                        <input type="text" class="form-control bg-light" name="resource_title" value="{{ res.title }}" placeholder="Resource Title (e.g. MDN JS Guide)">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input type="url" class="form-control bg-light" name="resource_url" value="{{ res.url }}" placeholder="https://...">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control bg-light" name="resource_type" value="{{ res.type }}" placeholder="Type (e.g. Docs)">
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control bg-light" name="resource_title" placeholder="Resource Title (e.g. MDN Web Docs)">
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="url" class="form-control bg-light" name="resource_url" placeholder="https://developer.mozilla.org/">
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control bg-light" name="resource_type" placeholder="Documentation">
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                        <a href="{{ url_for('admin.careers') }}" class="btn btn-outline-secondary px-4 fw-semibold">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
+                            <i class="bi bi-check-circle me-1"></i> Save Career Profile
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

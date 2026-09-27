@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}CareerPath AI - Find the Career That Fits You{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section text-center">
+    <div class="container py-4">
+        <span class="badge bg-primary-subtle text-primary-emphasis px-3 py-2 rounded-pill fw-semibold mb-3 border border-primary-subtle">
+            <i class="bi bi-stars me-1"></i> AI-Powered Career Decision Support
+        </span>
+        <h1 class="hero-title text-white mb-3">Find the Career That Fits You.</h1>
+        <p class="hero-subtitle mb-4">
+            Discover suitable career paths tailored specifically to your educational qualification, technical skills, soft skills, interests, and personal career goals.
+        </p>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            {% if current_user %}
+                <a href="{{ url_for('profile.onboarding') }}" class="btn btn-primary btn-lg shadow-sm">
+                    <i class="bi bi-rocket-takeoff me-2"></i> Get Career Guidance
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg shadow-sm">
+                    <i class="bi bi-rocket-takeoff me-2"></i> Get Career Guidance
+                </a>
+            {% endif %}
+            <a href="{{ url_for('career.explore') }}" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-compass me-2"></i> Explore Careers
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section: WHY CAREERPATH AI -->
+<div class="container py-5 my-3">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark mb-2">Why CareerPath AI</h2>
+        <p class="text-muted">A transparent, data-driven approach to career selection and skill development.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-custom h-100 p-4 text-center">
+                <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                    <i class="bi bi-cpu fs-3"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Personalized Recommendations</h5>
+                <p class="text-muted small mb-0">Our transparent scoring engine evaluates your education, technical skills, and goals to match you with suitable roles.</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-custom h-100 p-4 text-center">
+                <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                    <i class="bi bi-bar-chart-steps fs-3"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Skill Gap Analysis</h5>
+                <p class="text-muted small mb-0">Instantly compare your current skillset against real job requirements to discover exactly what skills you need to acquire next.</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-custom h-100 p-4 text-center">
+                <div class="rounded-circle bg-warning-subtle text-warning-emphasis d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                    <i class="bi bi-map fs-3"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Career Roadmaps</h5>
+                <p class="text-muted small mb-0">Step-by-step career progression roadmaps taking you from entry-level to senior leadership roles.</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-custom h-100 p-4 text-center">
+                <div class="rounded-circle bg-info-subtle text-info-emphasis d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                    <i class="bi bi-book fs-3"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Learning Guidance</h5>
+                <p class="text-muted small mb-0">Access curated, 100% free open-source learning resources and documentation for every recommended career path.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Section: HOW IT WORKS -->
+<div class="bg-white border-top border-bottom py-5">
+    <div class="container py-3">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark mb-2">How It Works</h2>
+            <p class="text-muted">Five simple steps to unlock your personalized career trajectory.</p>
+        </div>
+
+        <div class="row g-4 align-items-stretch">
+            <div class="col-md-4 col-lg">
+                <div class="card card-custom h-100 p-3 text-center">
+                    <span class="badge bg-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center fs-5" style="width: 40px; height: 40px;">1</span>
+                    <h6 class="fw-bold">Create Your Profile</h6>
+                    <p class="text-muted small mb-0">Register your account in seconds.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-lg">
+                <div class="card card-custom h-100 p-3 text-center">
+                    <span class="badge bg-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center fs-5" style="width: 40px; height: 40px;">2</span>
+                    <h6 class="fw-bold">Tell Us Your Skills</h6>
+                    <p class="text-muted small mb-0">Select your qualifications, tech & soft skills.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-lg">
+                <div class="card card-custom h-100 p-3 text-center">
+                    <span class="badge bg-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center fs-5" style="width: 40px; height: 40px;">3</span>
+                    <h6 class="fw-bold">Analyze Fit</h6>
+                    <p class="text-muted small mb-0">System generates transparent fit scores.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg">
+                <div class="card card-custom h-100 p-3 text-center">
+                    <span class="badge bg-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center fs-5" style="width: 40px; height: 40px;">4</span>
+                    <h6 class="fw-bold">Explore Roles</h6>
+                    <p class="text-muted small mb-0">Review top career matches & requirements.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg">
+                <div class="card card-custom h-100 p-3 text-center">
+                    <span class="badge bg-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center fs-5" style="width: 40px; height: 40px;">5</span>
+                    <h6 class="fw-bold">Build Roadmap</h6>
+                    <p class="text-muted small mb-0">Follow guided free learning paths.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg shadow-sm px-4">
+                Start Your Career Analysis <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

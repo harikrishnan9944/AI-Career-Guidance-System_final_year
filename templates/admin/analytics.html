@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}System Analytics - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="badge bg-danger-subtle text-danger border px-3 py-1 rounded-pill fw-semibold mb-1">Admin Portal</span>
+            <h2 class="fw-bold text-dark mb-0">System Analytics & Distribution Insights</h2>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="card card-custom p-2 mb-4 border-0 shadow-sm bg-white">
+        <ul class="nav nav-pills card-header-pills gap-2">
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" href="{{ url_for('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i> Overview</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" href="{{ url_for('admin.careers') }}"><i class="bi bi-briefcase me-1"></i> Manage Careers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" href="{{ url_for('admin.users') }}"><i class="bi bi-people me-1"></i> Registered Users</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active fw-bold" href="{{ url_for('admin.analytics') }}"><i class="bi bi-bar-chart me-1"></i> Analytics & Insights</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Most Recommended Careers -->
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 border-0 shadow-sm bg-white h-100">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-award text-primary me-2"></i> Most Recommended Careers</h5>
+                <div style="height: 280px;">
+                    <canvas id="chartTopRecs"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Most Selected Interests -->
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 border-0 shadow-sm bg-white h-100">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-heart text-danger me-2"></i> User Interest Distribution</h5>
+                <div style="height: 280px;">
+                    <canvas id="chartInterests"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Most Common Skills -->
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 border-0 shadow-sm bg-white h-100">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-code-slash text-success me-2"></i> Most Common User Skills</h5>
+                <div style="height: 280px;">
+                    <canvas id="chartSkills"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Distribution -->
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 border-0 shadow-sm bg-white h-100">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-mortarboard text-info me-2"></i> Education Distribution</h5>
+                <div style="height: 280px;">
+                    <canvas id="chartEdu"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const recLabels = {{ stats.top_recs_data.labels | tojson }};
+    const recCounts = {{ stats.top_recs_data.counts | tojson }};
+    createChart('chartTopRecs', 'bar', recLabels, recCounts, 'Recommendations Generated');
+
+    const interestLabels = {{ stats.interests_data.labels | tojson }};
+    const interestCounts = {{ stats.interests_data.counts | tojson }};
+    createChart('chartInterests', 'pie', interestLabels, interestCounts, 'Users Interested');
+
+    const skillLabels = {{ stats.skills_data.labels | tojson }};
+    const skillCounts = {{ stats.skills_data.counts | tojson }};
+    createChart('chartSkills', 'bar', skillLabels, skillCounts, 'Users with Skill');
+
+    const eduLabels = {{ stats.edu_data.labels | tojson }};
+    const eduCounts = {{ stats.edu_data.counts | tojson }};
+    createChart('chartEdu', 'doughnut', eduLabels, eduCounts, 'User Education');
+});
+</script>
+{% endblock %}

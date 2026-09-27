@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - CareerPath AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Banner -->
+    <div class="card card-custom p-4 mb-4 bg-white border-0 shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold text-dark mb-1">Welcome, {{ user.name }}</h2>
+                <p class="text-muted mb-3">Explore personalized career paths that match your unique profile, skills, and goals.</p>
+
+                <!-- Profile Completion Bar -->
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fw-semibold text-muted small">Profile Completion:</span>
+                    <div class="progress progress-custom flex-grow-1" style="height: 12px;">
+                        <div class="progress-bar progress-bar-custom" role="progressbar" style="width: {{ completion }}%;" aria-valuenow="{{ completion }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <span class="badge bg-primary rounded-pill">{{ completion }}%</span>
+                </div>
+            </div>
+
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{{ url_for('profile.onboarding') }}" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-pencil-square me-1"></i> Update Profile
+                </a>
+                <a href="{{ url_for('career.recommendations') }}" class="btn btn-primary shadow-sm">
+                    <i class="bi bi-stars me-1"></i> Analyze My Career
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Career Match Highlight Card -->
+    {% if top_match %}
+        <div class="card card-custom p-4 mb-4 border-start border-4 border-primary bg-white shadow-sm">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1 rounded-pill">Top Career Match</span>
+                        <span class="badge {{ top_match.badge_class }} rounded-pill">{{ top_match.match_tier }}</span>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-2">{{ top_match.career.name }}</h3>
+                    <p class="text-muted small mb-3">{{ top_match.career.description }}</p>
+
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <div>
+                            <span class="text-muted small d-block">Compatibility Score:</span>
+                            <span class="fs-4 fw-extrabold text-primary">{{ top_match.match_score }}%</span>
+                        </div>
+                        <div class="vr"></div>
+                        <div>
+                            <span class="text-muted small d-block">Category:</span>
+                            <span class="fw-semibold text-dark">{{ top_match.career.category }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{{ url_for('career.career_details', career_id=top_match.career.id) }}" class="btn btn-primary btn-lg shadow-sm w-100 mb-2">
+                        Explore Career <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                    <a href="{{ url_for('career.skill_gap', career_id=top_match.career.id) }}" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="bi bi-bar-chart-steps me-1"></i> View Skill Gap
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state mb-4">
+            <i class="bi bi-journal-check text-primary"></i>
+            <h4 class="fw-bold text-dark mb-2">Complete Your Career Profile</h4>
+            <p class="text-muted mb-3">Tell us about your educational qualification and skills to receive personalized career recommendations.</p>
+            <a href="{{ url_for('profile.onboarding') }}" class="btn btn-primary px-4 fw-bold">
+                <i class="bi bi-rocket-takeoff me-1"></i> Complete Profile
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Quick Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card card-custom p-3 text-center">
+                <span class="text-muted small d-block fw-semibold mb-1">Recommendations</span>
+                <span class="fs-3 fw-bold text-primary">{{ total_recommendations }}</span>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-custom p-3 text-center">
+                <span class="text-muted small d-block fw-semibold mb-1">Skills Profiled</span>
+                <span class="fs-3 fw-bold text-success">{{ user.skills|length }}</span>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-custom p-3 text-center">
+                <span class="text-muted small d-block fw-semibold mb-1">Interests Listed</span>
+                <span class="fs-3 fw-bold text-info">{{ user.interests|length }}</span>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-custom p-3 text-center">
+                <span class="text-muted small d-block fw-semibold mb-1">Saved Careers</span>
+                <span class="fs-3 fw-bold text-warning">{{ saved_careers|length }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Match Recommendations Preview & Saved Careers Split -->
+    <div class="row g-4">
+        <!-- Top 3 Matches -->
+        <div class="col-lg-7">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold text-dark mb-0"><i class="bi bi-stars text-primary me-2"></i> Top Recommended Careers</h4>
+                <a href="{{ url_for('career.recommendations') }}" class="text-primary fw-semibold small text-decoration-none">View All <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            {% for rec in top_matches %}
+                <div class="card card-custom p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1">{{ rec.career.name }}</h5>
+                            <span class="badge bg-light text-dark border">{{ rec.career.category }}</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge {{ rec.badge_class }} me-1">{{ rec.match_tier }}</span>
+                            <span class="fs-5 fw-bold text-primary">{{ rec.match_score }}%</span>
+                        </div>
+                    </div>
+
+                    <p class="text-muted small mb-2">{{ rec.career.description[:120] }}...</p>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                        <div>
+                            {% for skill in rec.career.required_skills[:3] %}
+                                <span class="skill-tag">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                        <a href="{{ url_for('career.career_details', career_id=rec.career.id) }}" class="btn btn-sm btn-outline-primary fw-semibold">
+                            Explore <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-muted">No recommendations generated yet.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Saved Careers Sidebar -->
+        <div class="col-lg-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold text-dark mb-0"><i class="bi bi-bookmark-star text-warning me-2"></i> Saved Careers</h4>
+                <a href="{{ url_for('career.saved_careers') }}" class="text-primary fw-semibold small text-decoration-none">Manage <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            {% for sc in saved_careers[:4] %}
+                <div class="card card-custom p-3 mb-2 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">{{ sc.career.name }}</h6>
+                        <span class="text-muted small">{{ sc.career.category }}</span>
+                    </div>
+                    <a href="{{ url_for('career.career_details', career_id=sc.career.id) }}" class="btn btn-sm btn-light">
+                        <i class="bi bi-eye"></i> View
+                    </a>
+                </div>
+            {% else %}
+                <div class="empty-state p-4">
+                    <i class="bi bi-bookmark text-muted fs-2 mb-2"></i>
+                    <p class="text-muted small mb-2">You haven't saved any careers yet.</p>
+                    <a href="{{ url_for('career.explore') }}" class="btn btn-sm btn-outline-primary">Explore Careers</a>
+                </div>
+            {% me-0 %}{% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

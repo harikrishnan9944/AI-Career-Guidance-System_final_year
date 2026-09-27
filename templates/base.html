@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CareerPath AI - Smart Career Guidance System{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Main Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-2 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+                <i class="bi bi-compass-fill text-primary me-2 fs-4"></i>
+                <span>CareerPath <span class="text-primary">AI</span></span>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium" href="{{ url_for('index') }}"><i class="bi bi-house-door me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium" href="{{ url_for('career.explore') }}"><i class="bi bi-search me-1"></i> Explore Careers</a>
+                    </li>
+                    {% if current_user %}
+                        {% if current_user.is_admin() %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium text-danger" href="{{ url_for('admin.dashboard') }}"><i class="bi bi-shield-lock me-1"></i> Admin Portal</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium" href="{{ url_for('career.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium" href="{{ url_for('career.recommendations') }}"><i class="bi bi-stars me-1"></i> Recommendations</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium" href="{{ url_for('career.saved_careers') }}"><i class="bi bi-bookmark-star me-1"></i> Saved Careers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium" href="{{ url_for('career.compare') }}"><i class="bi bi-arrow-left-right me-1"></i> Compare</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+
+                <div class="d-flex align-items-center gap-2">
+                    {% if current_user %}
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle fs-5 text-primary"></i>
+                                <span class="fw-semibold">{{ current_user.name }}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="userMenu">
+                                {% if not current_user.is_admin() %}
+                                    <li><a class="dropdown-item" href="{{ url_for('profile.onboarding') }}"><i class="bi bi-person-lines-fill me-2 text-primary"></i> Update Career Profile</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i> Log Out</a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary px-3 fw-semibold">Log In</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary px-3 fw-semibold">Get Started</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm border-0" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-top py-4 mt-auto">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-2">
+                        <i class="bi bi-compass-fill text-primary me-2"></i>
+                        <span class="fw-bold text-dark fs-5">CareerPath AI</span>
+                    </div>
+                    <p class="text-muted small mb-0">&copy; 2026 CareerPath AI — Intelligent Final Year Academic Career Guidance System.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="{{ url_for('index') }}" class="text-decoration-none text-muted small me-3">Home</a>
+                    <a href="{{ url_for('career.explore') }}" class="text-decoration-none text-muted small me-3">Explore Careers</a>
+                    {% if current_user %}
+                        <a href="{{ url_for('career.dashboard') }}" class="text-decoration-none text-muted small me-3">Dashboard</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none text-muted small">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="disclaimer-banner">
+                        <strong>Disclaimer:</strong> This system provides educational career guidance based on the information provided by the user. Recommendations are intended as decision-support information and should not be considered professional career, employment, financial, or psychological advice.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

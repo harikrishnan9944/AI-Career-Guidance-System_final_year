@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Career Profile Onboarding - CareerPath AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card card-custom p-4 shadow-sm border-0">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold text-dark mb-1">Build Your Career Profile</h3>
+                    <p class="text-muted small">Complete the multi-step questionnaire to receive personalized career compatibility recommendations.</p>
+                </div>
+
+                <!-- Multi-Step Progress Indicators -->
+                <div class="step-progress-bar">
+                    <div class="step-item active" id="step-indicator-1">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Education</div>
+                    </div>
+                    <div class="step-item" id="step-indicator-2">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Tech Skills</div>
+                    </div>
+                    <div class="step-item" id="step-indicator-3">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Soft Skills</div>
+                    </div>
+                    <div class="step-item" id="step-indicator-4">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">Interests</div>
+                    </div>
+                    <div class="step-item" id="step-indicator-5">
+                        <div class="step-circle">5</div>
+                        <div class="step-label">Work Env</div>
+                    </div>
+                    <div class="step-item" id="step-indicator-6">
+                        <div class="step-circle">6</div>
+                        <div class="step-label">Career Goal</div>
+                    </div>
+                    <div class="step-item" id="step-indicator-7">
+                        <div class="step-circle">7</div>
+                        <div class="step-label">Assessment</div>
+                    </div>
+                </div>
+
+                <form id="onboardingForm" action="{{ url_for('profile.onboarding') }}" method="POST">
+                    
+                    <!-- STEP 1: Education -->
+                    <div class="step-pane" id="step-pane-1">
+                        <h5 class="fw-bold text-primary mb-3"><i class="bi bi-mortarboard me-2"></i> Step 1: Educational Qualification</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="qualification" class="form-label fw-semibold">Highest Qualification</label>
+                                <select class="form-select bg-light" id="qualification" name="qualification">
+                                    <option value="" disabled {% if not profile.qualification %}selected{% endif %}>Select Qualification...</option>
+                                    <option value="High School / Pre-University" {% if profile.qualification == 'High School / Pre-University' %}selected{% endif %}>High School / Pre-University</option>
+                                    <option value="Diploma" {% if profile.qualification == 'Diploma' %}selected{% endif %}>Diploma</option>
+                                    <option value="Bachelor's Degree" {% if profile.qualification == "Bachelor's Degree" or not profile.qualification %}selected{% endif %}>Bachelor's Degree</option>
+                                    <option value="Master's Degree" {% if profile.qualification == "Master's Degree" %}selected{% endif %}>Master's Degree</option>
+                                    <option value="Ph.D. / Doctorate" {% if profile.qualification == 'Ph.D. / Doctorate' %}selected{% endif %}>Ph.D. / Doctorate</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="degree" class="form-label fw-semibold">Degree Title</label>
+                                <input type="text" class="form-control bg-light" id="degree" name="degree" value="{{ profile.degree or '' }}" placeholder="e.g. B.Sc, B.Tech, B.Com, M.Sc">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="field_of_study" class="form-label fw-semibold">Field of Study / Major</label>
+                                <input type="text" class="form-control bg-light" id="field_of_study" name="field_of_study" value="{{ profile.field_of_study or '' }}" placeholder="e.g. Computer Science, Information Technology, Mathematics">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="graduation_year" class="form-label fw-semibold">Graduation Year</label>
+                                <input type="number" class="form-control bg-light" id="graduation_year" name="graduation_year" value="{{ profile.graduation_year or 2026 }}" placeholder="2026" min="1990" max="2035">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: Technical Skills -->
+                    <div class="step-pane d-none" id="step-pane-2">
+                        <h5 class="fw-bold text-primary mb-2"><i class="bi bi-code-slash me-2"></i> Step 2: Technical Skills</h5>
+                        <p class="text-muted small mb-3">Select all technical skills you possess or are currently learning.</p>
+
+                        <div class="row g-2 mb-3">
+                            {% for skill in all_tech_skills %}
+                                <div class="col-6 col-md-4 col-lg-3">
+                                    <div class="form-check card-custom p-2 ps-4">
+                                        <input class="form-check-input" type="checkbox" name="tech_skills" value="{{ skill.id }}" id="tech_skill_{{ skill.id }}" {% if skill.id in user_skill_ids %}checked{% endif %}>
+                                        <label class="form-check-label fw-medium text-dark cursor-pointer" for="tech_skill_{{ skill.id }}">
+                                            {{ skill.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="custom_tech_skills" class="form-label fw-semibold">Add Custom Skills (comma-separated)</label>
+                            <input type="text" class="form-control bg-light" id="custom_tech_skills" name="custom_tech_skills" placeholder="e.g. PyTorch, Rust, TailwindCSS">
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Soft Skills -->
+                    <div class="step-pane d-none" id="step-pane-3">
+                        <h5 class="fw-bold text-primary mb-2"><i class="bi bi-people me-2"></i> Step 3: Soft Skills</h5>
+                        <p class="text-muted small mb-3">Select soft skills that describe your interpersonal strengths.</p>
+
+                        <div class="row g-2 mb-3">
+                            {% for skill in all_soft_skills %}
+                                <div class="col-6 col-md-4">
+                                    <div class="form-check card-custom p-2 ps-4">
+                                        <input class="form-check-input" type="checkbox" name="soft_skills" value="{{ skill.id }}" id="soft_skill_{{ skill.id }}" {% if skill.id in user_skill_ids %}checked{% endif %}>
+                                        <label class="form-check-label fw-medium text-dark cursor-pointer" for="soft_skill_{{ skill.id }}">
+                                            {{ skill.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: Interests -->
+                    <div class="step-pane d-none" id="step-pane-4">
+                        <h5 class="fw-bold text-primary mb-2"><i class="bi bi-heart me-2"></i> Step 4: Career Interests</h5>
+                        <p class="text-muted small mb-3">Which domains or sectors are you most interested in working in?</p>
+
+                        <div class="row g-2 mb-3">
+                            {% for interest in all_interests %}
+                                <div class="col-6 col-md-4">
+                                    <div class="form-check card-custom p-2 ps-4">
+                                        <input class="form-check-input" type="checkbox" name="interests" value="{{ interest.id }}" id="interest_{{ interest.id }}" {% if interest.id in user_interest_ids %}checked{% endif %}>
+                                        <label class="form-check-label fw-medium text-dark cursor-pointer" for="interest_{{ interest.id }}">
+                                            {{ interest.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- STEP 5: Career Preferences -->
+                    <div class="step-pane d-none" id="step-pane-5">
+                        <h5 class="fw-bold text-primary mb-2"><i class="bi bi-building me-2"></i> Step 5: Work Environment Preferences</h5>
+                        <p class="text-muted small mb-3">Select your preferred working style and company culture.</p>
+
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Preferred Work Environment</label>
+                                <select class="form-select bg-light" name="work_environment">
+                                    <option value="Remote" {% if profile.work_environment == 'Remote' %}selected{% endif %}>Remote (Work from home)</option>
+                                    <option value="Office" {% if profile.work_environment == 'Office' %}selected{% endif %}>On-site / Office</option>
+                                    <option value="Hybrid" {% if profile.work_environment == 'Hybrid' or not profile.work_environment %}selected{% endif %}>Hybrid (Office & Remote blend)</option>
+                                    <option value="Startup" {% if profile.work_environment == 'Startup' %}selected{% endif %}>Fast-paced Startup</option>
+                                    <option value="MNC" {% if profile.work_environment == 'MNC' %}selected{% endif %}>Multinational Corporation (MNC)</option>
+                                    <option value="Government" {% if profile.work_environment == 'Government' %}selected{% endif %}>Government / Public Sector</option>
+                                    <option value="Freelance" {% if profile.work_environment == 'Freelance' %}selected{% endif %}>Freelance / Consulting</option>
+                                    <option value="Research" {% if profile.work_environment == 'Research' %}selected{% endif %}>Academic / R&D Institute</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 6: Career Goal -->
+                    <div class="step-pane d-none" id="step-pane-6">
+                        <h5 class="fw-bold text-primary mb-2"><i class="bi bi-trophy me-2"></i> Step 6: Primary Career Goal</h5>
+                        <p class="text-muted small mb-3">What is your top priority for your future career?</p>
+
+                        <div class="row g-2 mb-3">
+                            {% set goals = ['High salary', 'Job stability', 'Creativity', 'Leadership', 'Technical expertise', 'Entrepreneurship', 'Research', 'Work-life balance'] %}
+                            {% for g in goals %}
+                                <div class="col-md-6">
+                                    <div class="form-check card-custom p-3 ps-4">
+                                        <input class="form-check-input" type="radio" name="career_goal" id="goal_{{ loop.index }}" value="{{ g }}" {% if profile.career_goal == g or (loop.first and not profile.career_goal) %}checked{% endif %}>
+                                        <label class="form-check-label fw-bold text-dark cursor-pointer" for="goal_{{ loop.index }}">
+                                            {{ g }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- STEP 7: Personality / Work Preference Assessment -->
+                    <div class="step-pane d-none" id="step-pane-7">
+                        <h5 class="fw-bold text-primary mb-2"><i class="bi bi-clipboard-check me-2"></i> Step 7: Career Preference Assessment</h5>
+                        <p class="text-muted small mb-3">Indicate your level of agreement with the following work preference statements.</p>
+
+                        <div class="card card-custom p-3 mb-3">
+                            <label class="fw-semibold text-dark mb-2">1. "I enjoy solving complex technical logic problems."</label>
+                            <select class="form-select bg-light" name="p_tech_solving">
+                                <option value="Strongly Agree" {% if personality.get('tech_solving') == 'Strongly Agree' %}selected{% endif %}>Strongly Agree</option>
+                                <option value="Agree" {% if personality.get('tech_solving') == 'Agree' or not personality.get('tech_solving') %}selected{% endif %}>Agree</option>
+                                <option value="Neutral" {% if personality.get('tech_solving') == 'Neutral' %}selected{% endif %}>Neutral</option>
+                                <option value="Disagree" {% if personality.get('tech_solving') == 'Disagree' %}selected{% endif %}>Disagree</option>
+                                <option value="Strongly Disagree" {% if personality.get('tech_solving') == 'Strongly Disagree' %}selected{% endif %}>Strongly Disagree</option>
+                            </select>
+                        </div>
+
+                        <div class="card card-custom p-3 mb-3">
+                            <label class="fw-semibold text-dark mb-2">2. "I prefer working collaboratively in a team environment."</label>
+                            <select class="form-select bg-light" name="p_teamwork">
+                                <option value="Strongly Agree" {% if personality.get('teamwork') == 'Strongly Agree' %}selected{% endif %}>Strongly Agree</option>
+                                <option value="Agree" {% if personality.get('teamwork') == 'Agree' or not personality.get('teamwork') %}selected{% endif %}>Agree</option>
+                                <option value="Neutral" {% if personality.get('teamwork') == 'Neutral' %}selected{% endif %}>Neutral</option>
+                                <option value="Disagree" {% if personality.get('teamwork') == 'Disagree' %}selected{% endif %}>Disagree</option>
+                                <option value="Strongly Disagree" {% if personality.get('teamwork') == 'Strongly Disagree' %}selected{% endif %}>Strongly Disagree</option>
+                            </select>
+                        </div>
+
+                        <div class="card card-custom p-3 mb-3">
+                            <label class="fw-semibold text-dark mb-2">3. "I enjoy learning new technologies and tools independently."</label>
+                            <select class="form-select bg-light" name="p_learning">
+                                <option value="Strongly Agree" {% if personality.get('learning') == 'Strongly Agree' or not personality.get('learning') %}selected{% endif %}>Strongly Agree</option>
+                                <option value="Agree" {% if personality.get('learning') == 'Agree' %}selected{% endif %}>Agree</option>
+                                <option value="Neutral" {% if personality.get('learning') == 'Neutral' %}selected{% endif %}>Neutral</option>
+                                <option value="Disagree" {% if personality.get('learning') == 'Disagree' %}selected{% endif %}>Disagree</option>
+                                <option value="Strongly Disagree" {% if personality.get('learning') == 'Strongly Disagree' %}selected{% endif %}>Strongly Disagree</option>
+                            </select>
+                        </div>
+
+                        <div class="card card-custom p-3 mb-3">
+                            <label class="fw-semibold text-dark mb-2">4. "I enjoy analyzing data to discover trends and patterns."</label>
+                            <select class="form-select bg-light" name="p_data_analysis">
+                                <option value="Strongly Agree" {% if personality.get('data_analysis') == 'Strongly Agree' %}selected{% endif %}>Strongly Agree</option>
+                                <option value="Agree" {% if personality.get('data_analysis') == 'Agree' or not personality.get('data_analysis') %}selected{% endif %}>Agree</option>
+                                <option value="Neutral" {% if personality.get('data_analysis') == 'Neutral' %}selected{% endif %}>Neutral</option>
+                                <option value="Disagree" {% if personality.get('data_analysis') == 'Disagree' %}selected{% endif %}>Disagree</option>
+                                <option value="Strongly Disagree" {% if personality.get('data_analysis') == 'Strongly Disagree' %}selected{% endif %}>Strongly Disagree</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Wizard Buttons -->
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                        <button type="button" class="btn btn-outline-secondary d-none" id="btnPrevStep">
+                            <i class="bi bi-chevron-left me-1"></i> Previous
+                        </button>
+
+                        <button type="button" class="btn btn-primary ms-auto" id="btnNextStep">
+                            Next Step <i class="bi bi-chevron-right ms-1"></i>
+                        </button>
+
+                        <button type="submit" class="btn btn-success d-none ms-auto" id="btnSubmitForm">
+                            <i class="bi bi-check-circle me-1"></i> Save Profile & Analyze
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Saved Careers - CareerPath AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1"><i class="bi bi-bookmark-star text-warning me-2"></i> Saved Careers</h2>
+            <p class="text-muted mb-0">Bookmarked career paths saved to your profile dashboard.</p>
+        </div>
+        <a href="{{ url_for('career.explore') }}" class="btn btn-outline-primary btn-sm fw-semibold">
+            <i class="bi bi-plus-circle me-1"></i> Explore More Careers
+        </a>
+    </div>
+
+    <div class="row g-4">
+        {% for item in saved_items %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card card-custom h-100 p-4 border-0 shadow-sm d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-primary-subtle text-primary border px-2 py-1 small fw-semibold">{{ item.career.category }}</span>
+                        
+                        {% if recs_map.get(item.career.id) %}
+                            <span class="badge bg-success-subtle text-success border px-2 py-1 fw-bold">{{ recs_map.get(item.career.id) }}% Fit</span>
+                        {% endif %}
+                    </div>
+
+                    <h4 class="fw-bold text-dark mb-2">{{ item.career.name }}</h4>
+                    <p class="text-muted small mb-3 flex-grow-1">{{ item.career.description[:110] }}...</p>
+
+                    <div class="mb-3">
+                        <span class="text-muted small d-block fw-semibold mb-1">Required Skills:</span>
+                        <div>
+                            {% for skill in item.career.required_skills[:3] %}
+                                <span class="skill-tag">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 pt-3 border-top mt-auto">
+                        <form action="{{ url_for('career.save_career', career_id=item.career.id) }}" method="POST" class="w-50">
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100 fw-semibold">
+                                <i class="bi bi-trash me-1"></i> Unsave
+                            </button>
+                        </form>
+
+                        <a href="{{ url_for('career.career_details', career_id=item.career.id) }}" class="btn btn-primary btn-sm w-50 fw-bold">
+                            View <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="bi bi-bookmark text-muted"></i>
+                    <h4 class="fw-bold text-dark mb-2">You Haven't Saved Any Careers Yet</h4>
+                    <p class="text-muted mb-3">Explore our career directory and save roles to compare and build learning paths.</p>
+                    <a href="{{ url_for('career.explore') }}" class="btn btn-primary fw-bold px-4">
+                        <i class="bi bi-compass me-1"></i> Explore Careers
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

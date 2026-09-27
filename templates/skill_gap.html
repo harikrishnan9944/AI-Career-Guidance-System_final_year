@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Skill Gap Analysis - {{ career.name }} - CareerPath AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('career.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('career.career_details', career_id=career.id) }}" class="text-decoration-none">{{ career.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Skill Gap Analysis</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="card card-custom p-4 mb-4 border-0 bg-white shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <span class="badge bg-primary-subtle text-primary border px-3 py-1 rounded-pill mb-2 fw-semibold">Target Career</span>
+                <h2 class="fw-bold text-dark mb-1">{{ career.name }} — Skill Gap Analysis</h2>
+                <p class="text-muted mb-0">Evaluate your current technical skillset against the requirements of this role.</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <div class="d-inline-block text-center p-3 rounded bg-light border">
+                    <span class="text-muted small d-block fw-semibold">Skill Match Score</span>
+                    <span class="fs-2 fw-bold text-primary">{{ skill_gap.skill_match_pct }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <div class="progress progress-custom" style="height: 14px;">
+                <div class="progress-bar progress-bar-custom" role="progressbar" style="width: {{ skill_gap.skill_match_pct }}%;" aria-valuenow="{{ skill_gap.skill_match_pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acquired vs Missing Grid -->
+    <div class="row g-4 mb-4">
+        <!-- Acquired Skills -->
+        <div class="col-md-6">
+            <div class="card card-custom p-4 h-100 border-0 shadow-sm">
+                <h4 class="fw-bold text-success mb-3">
+                    <i class="bi bi-check-circle-fill me-2"></i> Acquired Skills ({{ skill_gap.acquired_tech|length }})
+                </h4>
+                <p class="text-muted small">Skills you currently possess that align with this career path:</p>
+
+                {% if skill_gap.acquired_tech %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for skill in skill_gap.acquired_tech %}
+                            <span class="skill-tag acquired p-2 px-3 fs-6">
+                                <i class="bi bi-check-lg me-1"></i> {{ skill }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted italic small mb-0">No technical skills matched yet for this target career.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Missing / Skills to Improve -->
+        <div class="col-md-6">
+            <div class="card card-custom p-4 h-100 border-0 shadow-sm">
+                <h4 class="fw-bold text-danger mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Skills to Improve / Learn ({{ skill_gap.missing_tech|length }})
+                </h4>
+                <p class="text-muted small">Recommended skills to acquire to bridge your career gap:</p>
+
+                {% if skill_gap.priority_missing %}
+                    <div class="list-group list-group-flush">
+                        {% for item in skill_gap.priority_missing %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-bottom px-0 py-2">
+                                <div>
+                                    <span class="fw-bold text-dark me-2">#{{ item.rank }}</span>
+                                    <span class="fw-semibold text-dark">{{ item.skill }}</span>
+                                </div>
+                                <span class="badge bg-{{ item.badge_color }}-subtle text-{{ item.badge_color }} border border-{{ item.badge_color }}-subtle px-2 py-1">
+                                    Priority: {{ item.importance }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-success border-0 mb-0">
+                        <i class="bi bi-trophy-fill me-2"></i> You possess all core technical skills required for this career!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA to Learning Roadmap -->
+    <div class="card card-custom p-4 text-center border-0 shadow-sm bg-primary text-white">
+        <h4 class="fw-bold mb-2">Ready to start learning these skills?</h4>
+        <p class="text-white-50 mb-3">Follow our step-by-step visual learning roadmap with free official documentation and courses.</p>
+        <div>
+            <a href="{{ url_for('career.learning_path', career_id=career.id) }}" class="btn btn-light btn-lg fw-bold shadow-sm px-4">
+                <i class="bi bi-journal-bookmark me-2 text-primary"></i> View Learning Roadmap & Free Resources
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

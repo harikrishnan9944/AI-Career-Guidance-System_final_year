@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}{{ career.name }} - Career Details - CareerPath AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('career.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('career.explore') }}" class="text-decoration-none">Careers</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ career.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Header Banner -->
+    <div class="card card-custom p-4 mb-4 border-0 bg-white shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-primary-subtle text-primary border px-3 py-1 rounded-pill fw-semibold">{{ career.category }}</span>
+                    {% if match_score %}
+                        <span class="badge bg-success-subtle text-success border px-3 py-1 rounded-pill fw-semibold">{{ match_score }}% Profile Fit</span>
+                    {% endif %}
+                </div>
+                <h1 class="fw-bold text-dark mb-2">{{ career.name }}</h1>
+                <p class="text-muted lead mb-0">{{ career.description }}</p>
+            </div>
+
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <form action="{{ url_for('career.save_career', career_id=career.id) }}" method="POST" class="d-inline me-2">
+                    {% if is_saved %}
+                        <button type="submit" class="btn btn-outline-warning fw-semibold">
+                            <i class="bi bi-bookmark-fill me-1"></i> Saved
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <i class="bi bi-bookmark me-1"></i> Save Career
+                        </button>
+                    {% endif %}
+                </form>
+                <a href="{{ url_for('career.skill_gap', career_id=career.id) }}" class="btn btn-primary shadow-sm">
+                    <i class="bi bi-bar-chart-steps me-1"></i> Skill Gap Analysis
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Details Column -->
+        <div class="col-lg-8">
+            
+            <!-- What does this role do? -->
+            <div class="card card-custom p-4 mb-4 border-0 shadow-sm">
+                <h4 class="fw-bold text-dark mb-3"><i class="bi bi-briefcase text-primary me-2"></i> Role Overview</h4>
+                <p class="text-secondary">{{ career.description }}</p>
+                
+                <hr>
+
+                <h6 class="fw-bold text-dark mb-2">Required Qualifications & Education:</h6>
+                <div class="mb-3">
+                    {% for edu in career.required_education %}
+                        <span class="badge bg-light text-dark border me-2 p-2"><i class="bi bi-mortarboard me-1 text-primary"></i> {{ edu }}</span>
+                    {% endfor %}
+                </div>
+
+                <h6 class="fw-bold text-dark mb-2">Work Environments Available:</h6>
+                <div>
+                    {% for env in career.work_environment %}
+                        <span class="badge bg-light text-dark border me-2 p-2"><i class="bi bi-building me-1 text-secondary"></i> {{ env }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Required Skills (Tech & Soft) -->
+            <div class="card card-custom p-4 mb-4 border-0 shadow-sm">
+                <h4 class="fw-bold text-dark mb-3"><i class="bi bi-tools text-primary me-2"></i> Required Skills</h4>
+                
+                <h6 class="fw-bold text-dark mb-2">Technical Skills:</h6>
+                <div class="mb-4">
+                    {% for skill in career.required_skills %}
+                        <span class="skill-tag p-2 px-3 fs-6">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+
+                <h6 class="fw-bold text-dark mb-2">Soft Skills:</h6>
+                <div>
+                    {% for skill in career.soft_skills %}
+                        <span class="skill-tag p-2 px-3 fs-6 bg-info-subtle text-info-emphasis border-info-subtle">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Career Progression Roadmap -->
+            <div class="card card-custom p-4 mb-4 border-0 shadow-sm">
+                <h4 class="fw-bold text-dark mb-4"><i class="bi bi-graph-up-arrow text-primary me-2"></i> Career Growth & Progression</h4>
+                
+                <div class="position-relative ps-4 border-start border-3 border-primary ms-2">
+                    {% for step in career.career_growth %}
+                        <div class="mb-4 position-relative">
+                            <div class="position-absolute bg-primary rounded-circle" style="width: 14px; height: 14px; left: -32px; top: 4px;"></div>
+                            <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase mb-1">{{ step.level }}</span>
+                            <h5 class="fw-bold text-dark mb-1">{{ step.title }}</h5>
+                            <p class="text-muted small mb-0">Expected responsibilities and seniority tier for {{ step.level }} positions.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="col-lg-4">
+            
+            <!-- Quick Navigation Box -->
+            <div class="card card-custom p-4 mb-4 border-0 shadow-sm bg-white">
+                <h5 class="fw-bold text-dark mb-3">Action Center</h5>
+                
+                <a href="{{ url_for('career.skill_gap', career_id=career.id) }}" class="btn btn-outline-primary w-100 mb-2 py-2 fw-semibold text-start d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-bar-chart-steps me-2"></i> Skill Gap Analysis</span>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+
+                <a href="{{ url_for('career.learning_path', career_id=career.id) }}" class="btn btn-outline-primary w-100 py-2 fw-semibold text-start d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-journal-bookmark me-2"></i> Learning Path & Resources</span>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+
+            <!-- Related Roles -->
+            {% if related_roles %}
+                <div class="card card-custom p-4 border-0 shadow-sm bg-white">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-diagram-3 me-2 text-primary"></i> Related Roles</h5>
+                    {% for rel in related_roles %}
+                        <div class="border-bottom py-2">
+                            <h6 class="fw-bold mb-1"><a href="{{ url_for('career.career_details', career_id=rel.id) }}" class="text-dark text-decoration-none">{{ rel.name }}</a></h6>
+                            <span class="text-muted small">{{ rel.category }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

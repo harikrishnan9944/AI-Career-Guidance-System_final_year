@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Learning Path - {{ career.name }} - CareerPath AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('career.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('career.career_details', career_id=career.id) }}" class="text-decoration-none">{{ career.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Learning Path</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="card card-custom p-4 mb-4 border-0 bg-white shadow-sm">
+        <span class="badge bg-primary-subtle text-primary border px-3 py-1 rounded-pill mb-2 fw-semibold w-auto d-inline-block">Guided Roadmap</span>
+        <h2 class="fw-bold text-dark mb-1">{{ career.name }} Roadmap</h2>
+        <p class="text-muted mb-0">Follow this step-by-step learning sequence to build expertise for this role.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Visual Step-by-Step Roadmap -->
+        <div class="col-lg-7">
+            <div class="card card-custom p-4 border-0 shadow-sm">
+                <h4 class="fw-bold text-dark mb-4"><i class="bi bi-diagram-2 text-primary me-2"></i> Step-by-Step Progression</h4>
+
+                <div class="position-relative ps-4 border-start border-3 border-primary ms-2">
+                    {% for step in roadmap_steps %}
+                        <div class="mb-4 position-relative">
+                            <div class="position-absolute rounded-circle {% if step.is_completed %}bg-success{% else %}bg-secondary{% endif %}" style="width: 16px; height: 16px; left: -33px; top: 4px;"></div>
+                            
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-light text-dark border">Step {{ step.step }}</span>
+                                <span class="badge bg-{{ step.badge_class }} rounded-pill">{{ step.status }}</span>
+                            </div>
+                            
+                            <h5 class="fw-bold text-dark mb-1">{{ step.title }}</h5>
+                            <p class="text-muted small mb-0">
+                                {% if step.is_completed %}
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i> Skill verified in your user profile.
+                                {% else %}
+                                    <i class="bi bi-arrow-right-circle text-primary me-1"></i> Recommended learning focus for your career path.
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Free Learning Resources -->
+        <div class="col-lg-5">
+            <div class="card card-custom p-4 border-0 shadow-sm bg-white">
+                <h4 class="fw-bold text-dark mb-3"><i class="bi bi-journal-check text-success me-2"></i> Free Learning Resources</h4>
+                <p class="text-muted small mb-4">Curated 100% free official documentation, courses, and open-source materials:</p>
+
+                {% for res in resources %}
+                    <div class="card card-custom p-3 mb-3 border bg-light">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle small fw-semibold">{{ res.type or 'Free Guide' }}</span>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-2">{{ res.title }}</h6>
+                        <a href="{{ res.url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary fw-semibold w-100">
+                            Access Resource <i class="bi bi-box-arrow-up-right ms-1"></i>
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted small">No specific resource links listed.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

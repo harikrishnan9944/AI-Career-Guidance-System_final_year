@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - CareerPath AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="badge bg-danger-subtle text-danger border px-3 py-1 rounded-pill fw-semibold mb-1">Admin Portal</span>
+            <h2 class="fw-bold text-dark mb-0">System Control & Overview</h2>
+        </div>
+        <div>
+            <a href="{{ url_for('admin.add_career') }}" class="btn btn-primary fw-bold shadow-sm me-2">
+                <i class="bi bi-plus-lg me-1"></i> Add New Career
+            </a>
+            <a href="{{ url_for('admin.analytics') }}" class="btn btn-outline-secondary fw-semibold">
+                <i class="bi bi-graph-up me-1"></i> Full Analytics
+            </a>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2-4 col-sm-6">
+            <div class="card card-custom p-3 text-center border-0 shadow-sm">
+                <span class="text-muted small fw-semibold d-block mb-1">Total Users</span>
+                <span class="fs-3 fw-bold text-primary">{{ stats.total_users }}</span>
+            </div>
+        </div>
+
+        <div class="col-md-2-4 col-sm-6">
+            <div class="card card-custom p-3 text-center border-0 shadow-sm">
+                <span class="text-muted small fw-semibold d-block mb-1">Profiles Completed</span>
+                <span class="fs-3 fw-bold text-success">{{ stats.completed_profiles }}</span>
+            </div>
+        </div>
+
+        <div class="col-md-2-4 col-sm-6">
+            <div class="card card-custom p-3 text-center border-0 shadow-sm">
+                <span class="text-muted small fw-semibold d-block mb-1">Career Repository</span>
+                <span class="fs-3 fw-bold text-info">{{ stats.total_careers }}</span>
+            </div>
+        </div>
+
+        <div class="col-md-2-4 col-sm-6">
+            <div class="card card-custom p-3 text-center border-0 shadow-sm">
+                <span class="text-muted small fw-semibold d-block mb-1">Recommendations</span>
+                <span class="fs-3 fw-bold text-warning">{{ stats.total_recommendations }}</span>
+            </div>
+        </div>
+
+        <div class="col-md-2-4 col-sm-6">
+            <div class="card card-custom p-3 text-center border-0 shadow-sm">
+                <span class="text-muted small fw-semibold d-block mb-1">Most Popular</span>
+                <span class="fs-6 fw-bold text-dark text-truncate d-block">{{ stats.most_popular_career }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Navigation Tabs -->
+    <div class="card card-custom p-2 mb-4 border-0 shadow-sm bg-white">
+        <ul class="nav nav-pills card-header-pills gap-2">
+            <li class="nav-item">
+                <a class="nav-link active fw-bold" href="{{ url_for('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i> Overview</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" href="{{ url_for('admin.careers') }}"><i class="bi bi-briefcase me-1"></i> Manage Careers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" href="{{ url_for('admin.users') }}"><i class="bi bi-people me-1"></i> Registered Users</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" href="{{ url_for('admin.analytics') }}"><i class="bi bi-bar-chart me-1"></i> Analytics & Insights</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 border-0 shadow-sm bg-white h-100">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-pie-chart text-primary me-2"></i> Careers by Category</h5>
+                <div style="height: 260px;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 border-0 shadow-sm bg-white h-100">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-bar-chart-line text-success me-2"></i> Top Recommended Careers</h5>
+                <div style="height: 260px;">
+                    <canvas id="topRecsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tables Row -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 border-0 shadow-sm bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0">Recently Registered Users</h5>
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-sm btn-link text-primary p-0">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in recent_users %}
+                                <tr>
+                                    <td class="fw-bold text-dark">{{ u.name }}</td>
+                                    <td class="small text-muted">{{ u.email }}</td>
+                                    <td class="small text-muted">{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 border-0 shadow-sm bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0">Recently Added Careers</h5>
+                    <a href="{{ url_for('admin.careers') }}" class="btn btn-sm btn-link text-primary p-0">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Career</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in recent_careers %}
+                                <tr>
+                                    <td class="fw-bold text-dark">{{ c.name }}</td>
+                                    <td><span class="badge bg-light text-dark border">{{ c.category }}</span></td>
+                                    <td>
+                                        {% if c.is_active %}
+                                            <span class="badge bg-success-subtle text-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const catLabels = {{ stats.categories_data.labels | tojson }};
+    const catCounts = {{ stats.categories_data.counts | tojson }};
+    createChart('categoryChart', 'doughnut', catLabels, catCounts, 'Careers Count');
+
+    const recLabels = {{ stats.top_recs_data.labels | tojson }};
+    const recCounts = {{ stats.top_recs_data.counts | tojson }};
+    createChart('topRecsChart', 'bar', recLabels, recCounts, 'Recommendations');
+});
+</script>
+{% endblock %}
