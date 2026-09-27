@@ -14,12 +14,16 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Ensure database directory exists
+    # Ensure database directory exists if writable
     db_dir = os.path.join(app.root_path, 'database')
-    if not os.path.exists(db_dir):
-        os.makedirs(db_dir)
+    try:
+        if not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
+    except Exception:
+        pass
 
     # Initialize extensions
+
     db.init_app(app)
 
     # Register blueprints

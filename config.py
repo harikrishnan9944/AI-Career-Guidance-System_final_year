@@ -13,7 +13,16 @@ class Config:
     if raw_db_url and raw_db_url.startswith("postgres://"):
         raw_db_url = raw_db_url.replace("postgres://", "postgresql://", 1)
         
-    SQLALCHEMY_DATABASE_URI = raw_db_url or \
-        'sqlite:///' + os.path.join(BASE_DIR, 'database', 'career_guidance.db')
+    if raw_db_url:
+        SQLALCHEMY_DATABASE_URI = raw_db_url
+    else:
+        # On Vercel / serverless read-only environment, write SQLite to /tmp
+        if os.environ.get('VERCEL') or not os.access(BASE_DIR, os.W_OK):
+            sqlite_path = '/tmp/career_guidance.db'
+        else:
+            sqlite_path = os.path.join(BASE_DIR, 'database', 'career_guidance.db')
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///' + sqlite_path
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 
