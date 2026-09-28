@@ -124,24 +124,31 @@ def init_mongo_sync(db_sqlalchemy):
         if mongo_db is None:
             return
 
-        # Track objects to sync
+        try:
+            # Flush changes to assign auto-increment IDs for new objects before serializing
+            session.flush()
+        except Exception as e:
+            logger.warning(f"Error during session.flush in before_commit: {e}")
+            return
+
+        to_sync = []
         for obj in list(session.new) + list(session.dirty):
             coll_name = get_collection_name(obj.__class__.__name__)
             if coll_name:
-                doc = model_to_mongo_dict(obj)
-                if doc and obj.id:
-                    try:
-                        mongo_db[coll_name].replace_one({"_id": obj.id}, doc, upsert=True)
-                    except Exception as e:
-                        logger.warning(f"Error syncing {obj.__class__.__name__} to MongoDB: {e}")
+                try:
+                    doc = model_to_mongo_dict(obj)
+                    if doc and doc.get("_id"):
+                        to_sync.append((coll_name, doc["_id"], doc))
+                except Exception as e:
+                    logger.warning(f"Error converting {obj.__class__.__name__} for Mongo sync: {e}")
 
+        to_delete = []
         for obj in session.deleted:
             coll_name = get_collection_name(obj.__class__.__name__)
             if coll_name and hasattr(obj, 'id') and obj.id:
-                try:
-                    mongo_db[coll_name].delete_one({"_id": obj.id})
-                except Exception as e:
-                    logger.warning(f"Error deleting {obj.__class__.__name__} from MongoDB: {e}")
+                to_delete.append((coll_name, obj.id))
+
+        session.info['mongo_sync_pending'] = (to_sync, to_delete)
 
     @event.listens_for(db_sqlalchemy.session, 'after_commit')
     def after_commit(session):
@@ -149,16 +156,23 @@ def init_mongo_sync(db_sqlalchemy):
         if mongo_db is None:
             return
 
-        # Double check new objects that got IDs after commit
-        for obj in list(session.identity_map.values()):
-            coll_name = get_collection_name(obj.__class__.__name__)
-            if coll_name:
-                doc = model_to_mongo_dict(obj)
-                if doc and obj.id:
-                    try:
-                        mongo_db[coll_name].replace_one({"_id": obj.id}, doc, upsert=True)
-                    except Exception as e:
-                        logger.warning(f"Error post-syncing {obj.__class__.__name__} to MongoDB: {e}")
+        pending = session.info.pop('mongo_sync_pending', None)
+        if not pending:
+            return
+
+        to_sync, to_delete = pending
+
+        for coll_name, doc_id, doc in to_sync:
+            try:
+                mongo_db[coll_name].replace_one({"_id": doc_id}, doc, upsert=True)
+            except Exception as e:
+                logger.warning(f"Error syncing {coll_name} to MongoDB: {e}")
+
+        for coll_name, doc_id in to_delete:
+            try:
+                mongo_db[coll_name].delete_one({"_id": doc_id})
+            except Exception as e:
+                logger.warning(f"Error deleting {coll_name} from MongoDB: {e}")
 
 def sync_all_existing_data(app, db_sqlalchemy):
     """Sync all existing SQL database data into MongoDB Atlas on startup."""
