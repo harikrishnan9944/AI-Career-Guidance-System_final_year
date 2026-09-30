@@ -33,17 +33,20 @@ class Profile(db.Model):
         if self.qualification and self.degree and self.field_of_study:
             completed += 1
         
+        user_obj = getattr(self, 'user', None) or (User.query.get(self.user_id) if getattr(self, 'user_id', None) else None)
+        
         # User skills
-        if self.user.skills and len(self.user.skills) > 0:
+        if user_obj and getattr(user_obj, 'skills', None) and len(user_obj.skills) > 0:
             completed += 1
             
         # Soft skills
-        soft_skills_count = sum(1 for s in self.user.skills if s.skill and s.skill.category == 'soft')
-        if soft_skills_count > 0:
-            completed += 1
+        if user_obj and getattr(user_obj, 'skills', None):
+            soft_skills_count = sum(1 for s in user_obj.skills if s.skill and s.skill.category == 'soft')
+            if soft_skills_count > 0:
+                completed += 1
             
         # User interests
-        if self.user.interests and len(self.user.interests) > 0:
+        if user_obj and getattr(user_obj, 'interests', None) and len(user_obj.interests) > 0:
             completed += 1
             
         if self.work_environment:
